@@ -3,9 +3,9 @@ CCSW = -Wno-deprecated-declarations -DLANDER_MAIN
 PLATFORM = `uname`
 #LIBS = -L/usr/lib /usr/lib/libqthreads.so.0 -lguile -ldl -lreadline -ltermcap -lm
 
-INCLUDES = -I/usr/include/g++-2 -I/usr/lib/gtkmm/include -I/usr/lib/sigc++/include -I/usr/lib/glib/include -I/usr/include/gtk-1.2 -I/usr/include/glib-1.2
+INCLUDES = -I/usr/include/g++-2 -I/usr/lib/sigc++/include
 
-CFLAGS = -g -fopenmp -Wall -Wno-return-type $(INCLUDES) -DSWIG_GLOBAL -Wno-deprecated-declarations
+CFLAGS = -g -fopenmp -Wall -Wno-return-type $(INCLUDES) -DSWIG_GLOBAL -Wno-deprecated-declarations 
 #CFLAGS = -g -Wall -Werror
 #CFLAGS = -g -Wall 
 
@@ -15,10 +15,12 @@ neat: neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organ
 	$(CC) $(CFLAGS) $(LIBS) neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander.o lander_graphics.o experiments.o neatmain.o -o neat  
 #	$(CC) $(CFLAGS) $(LIBS) networks.o genetics.o visual.o experiments.o neatswig_wrap.o neatmain.o -o neat `gtkmm-config --cflags --libs`
 
-########################
-
 lander: neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander_main.o lander_graphics_main.o experiments.o #neatswig_wrap.o visual.o 
 	$(CC) $(CFLAGS) $(LIBS) $(CCSW) neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander_main.o lander_graphics_main.o experiments.o -o lander  -lGL -lGLU -lglut
+
+#graph: neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander.o lander_graphics.o experiments.o visual.o visualmain.o 
+#	$(CC) $(CFLAGS) $(LIBS) neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander.o lander_graphics.o experiments.o visual.o visualmain.o -o graph 
+########################
 
 lander_graphics_main.o: lander_graphics.cpp lander.h
 	$(CC) $(CFLAGS) $(CCSW) -c lander_graphics.cpp -o lander_graphics_main.o
@@ -32,11 +34,17 @@ lander_graphics.o: lander_graphics.cpp lander.h
 lander.o: lander.cpp lander.h
 	$(CC) $(CFLAGS) -c lander.cpp -o lander.o
 
+#visual.o: visual.cpp visual.h
+	$(CC) $(CFLAGS) -c visual.cpp -o visual.o
+
+#visualmain.o: visualmain.cpp
+	$(CC) $(CFLAGS) -c visualmain.cpp -o visualmain.o
+
 neat.o: neat.cpp neat.h
 	  $(CC) $(CFLAGS) -c neat.cpp -o neat.o
 
 network.o: network.cpp network.h neat.h neat.o  
-	$(CC) $(CFLAGS) -c network.cpp -o network.o
+	$(CC) $(CFLAGS)  -c network.cpp -o network.o
 
 nnode.o: nnode.cpp nnode.h    
 	$(CC) $(CFLAGS) -c nnode.cpp -o nnode.o

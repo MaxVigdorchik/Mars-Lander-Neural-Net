@@ -619,3 +619,174 @@ int Network::max_depth() {
 
 }
 
+/*void Network::graph(int width, int height)
+{
+    list<NNode*> drawlist;  //Draw-order list of nodes
+    list<NNode*>::iterator curnode;  //Moves through outputs
+    list<double>::iterator currow;  //For row averaging
+    double rowsum;
+    int maxrow=0;
+    int xpixels;
+    int ypixels;
+    int ystep;
+    int xstep;
+    int ypos=50;  //Always start drawing 20 pixels in
+    int xpos=3;
+    int rownum;
+    int nodes_in_row;
+    int noise;  //Noise is added to x values so they won't perfectly align
+    list<NNode*> *startpath; //For detecting loops
+
+    ScribbleWindow *window;
+
+    // Before setting up graphics, we need to compute the coordinates
+    // of the nodes
+    for(curnode=outputs.begin();curnode!=outputs.end();++curnode)
+    {
+	//Create a new path for this output
+	startpath=new list<NNode*>();
+	startpath->push_back((*curnode));
+
+	((*curnode)->rowlevels).push_back(0);
+	drawlist.push_back((*curnode));
+	findrows((*curnode),0,drawlist,startpath);
+
+	//path used
+	delete startpath;
+    }
+
+    //Now assign each NNode an average row for drawing purposes
+    for(curnode=drawlist.begin();curnode!=drawlist.end();++curnode) {
+	rowsum=0;
+	for(currow=((*curnode)->rowlevels).begin();currow!=((*curnode)->rowlevels).end();++currow) {
+	    rowsum+=*currow;
+	}
+	//Now average it
+	(*curnode)->row=floor(rowsum/(((*curnode)->rowlevels).size())+0.5);
+	if ((*curnode)->row>maxrow) 
+	    maxrow=(*curnode)->row;  //Keep track of lowest row
+    }
+
+    //Pull the sensors down to below the lowest row
+    ++maxrow;
+
+    //Now push the sensors onto the drawlist at the maxrow level
+    for(curnode=inputs.begin();curnode!=inputs.end();++curnode) {
+	((*curnode)->rowlevels).push_back(0);
+	(*curnode)->row=maxrow;
+	drawlist.push_back((*curnode));
+    }
+
+    //Pull the outputs to the top row
+    for(curnode=outputs.begin();curnode!=outputs.end();++curnode) {
+	((*curnode)->rowlevels).push_back(0);
+	(*curnode)->row=0;
+    }
+
+    //Compute the size of the drawing area
+    ypixels=height-100;
+    xpixels=width-6;
+    ystep=floor(ypixels/maxrow);
+
+    //Assign coordinates to every node
+    for(rownum=0;rownum<=maxrow;rownum++) {
+	//See how many NNodes are in this row
+	nodes_in_row=0;
+	for(curnode=drawlist.begin();curnode!=drawlist.end();++curnode) {
+	    if (((*curnode)->row)==rownum) {
+		nodes_in_row++;
+	    }
+	}
+
+	//Compute the xstep for this row
+	xstep=floor(((double) xpixels)/
+		    ((double) (nodes_in_row+1)));
+    
+	xpos+=xstep;
+
+	for(curnode=drawlist.begin();curnode!=drawlist.end();++curnode) {
+	    if (((*curnode)->row)==rownum) {
+		(*curnode)->ypos=ypos;
+
+		noise=0;
+		if (((*curnode)->type)!=SENSOR) {
+		    noise=randint(0,xstep/2);
+		    if (randbit()) noise=noise*-1;
+		}
+
+		(*curnode)->xpos=xpos+noise;
+
+		xpos+=xstep;
+	    }
+	}
+	ypos+=ystep;
+	xpos=3;
+    }
+
+    //Now that each node has a coordinate,we can graph the network
+    //Note that the actual drawing takes place during he configuration
+
+    window = new ScribbleWindow(this,&drawlist,width,height);
+    window->show();
+
+    myapp->run();
+}
+
+
+void Network::findrows(NNode *curnode,double row,list<NNode*> &drawlist,
+		       list<NNode*> *path)
+{
+  list<Link*> innodes=curnode->incoming;
+  list<Link*>::iterator curlink;
+  list<NNode*>::iterator location;
+  list<NNode*> *newpath;
+  list<NNode*>::iterator pathnode; //To copy the path
+
+  //Go down one row
+  row=row+1.0;
+
+  if (!((curnode->type)==SENSOR)) {
+    for(curlink=innodes.begin();curlink!=innodes.end();++curlink) {
+      //Skip recurrent links- they don't affect row positioning of nodes
+      if ((!((*curlink)->is_recurrent))) {
+
+	//Make sure there is no loop
+	location=find(path->begin(),path->end(),((*curlink)->in_node));
+	if (location==path->end()) {
+
+	  //Create a new path containing this node
+	  newpath=new list<NNode*>();
+	  
+	  //Copy the current path into the new path
+	  for(pathnode=path->begin();pathnode!=path->end();++pathnode) {
+	    newpath->push_back((*pathnode));
+	  }
+	  
+	  //Add the next node in the path to the path
+	  newpath->push_back(((*curlink)->in_node));
+	  
+	  //cout<<"found Node "<<((*curlink)->in_node)<<" at row "<<row<<endl;
+
+	  (((*curlink)->in_node)->rowlevels).push_back(row);
+	  location=find(drawlist.begin(),drawlist.end(),((*curlink)->in_node));
+	  
+	  if (location==drawlist.end()) {
+	    //Do not add SENSORS here because the traversal order may visit them
+	    //out of order
+	    if (!((((*curlink)->in_node)->type)==SENSOR))
+	      drawlist.push_back((*curlink)->in_node);
+	  }
+	  //cout<<"calling findrows on node "<<((*curlink)->in_node)->node_id<<endl;
+	  findrows((*curlink)->in_node,row,drawlist,newpath);
+	  
+	  delete newpath; //Path has been used
+
+	} //end if (location==drawlist.end()) 
+	
+      } //end if ((!((*curlink)->is_recurrent)))
+    }
+  }
+  
+}
+
+*/

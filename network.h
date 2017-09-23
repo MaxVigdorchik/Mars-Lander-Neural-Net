@@ -20,6 +20,7 @@
 #include <vector>
 #include "neat.h"
 #include "nnode.h"
+//#include "visual.h"
 
 namespace NEAT {
 
@@ -135,6 +136,10 @@ namespace NEAT {
 
 		int max_depth();
 
+	    //void graph(int width, int height);
+
+	    //void findrows(NNode *curnode, double row, list<NNode*> &drawlist, list<NNode*> *path);
+	    
 	};
 
 } // namespace NEAT

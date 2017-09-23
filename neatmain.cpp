@@ -35,15 +35,6 @@
 #include "experiments.h"
 using namespace std;
 
-
-//  double testdoubval() {
-//    return *testdoub;
-//  }
-
-//  double testdoubset(double val) {
-//    *testdoub=val;
-//  }
-
 int main(int argc, char *argv[]) {
 
   //list<NNode*> nodelist;
@@ -65,7 +56,7 @@ int main(int argc, char *argv[]) {
       cerr << "A NEAT parameters file (.ne file) and a starting genes file is required!" << endl;
     return -1;
   }
-  bool checkpoint = argc ==4;
+  bool checkpoint = argc == 4;
   //Load in the params
   NEAT::load_neat_params(argv[1],true);
 

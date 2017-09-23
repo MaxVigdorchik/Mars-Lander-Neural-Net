@@ -5,23 +5,28 @@
 #include <vector>
 #include <algorithm>
 
-#include "networks.h" 
-#include "genetics.h"
+#include "neat.h"
+#include "network.h"
+#include "population.h"
+#include "organism.h"
+#include "genome.h"
+#include "species.h"
+#include "lander.h"
 
 
-#include <gtk--/main.h>
-#include <gtk--/style.h>
-#include <gtk--/window.h>
-#include <gtk--/button.h>
-#include <gtk--/box.h>
-#include <gtk--/drawingarea.h>
+#include <gtkmm/main.h>
+//#include <gtkmm/style.h> //No longer part of gtkmm
+#include <gtkmm/window.h>
+#include <gtkmm/button.h>
+#include <gtkmm/box.h>
+#include <gtkmm/drawingarea.h>
 
 extern Gtk::Main *myapp;
 
 char *itoa(int n,char s[]);
 
-class Population;
-class Network;
+//class Population;
+//class Network;
 
 class ScribbleDrawingArea  : public Gtk::DrawingArea
 {

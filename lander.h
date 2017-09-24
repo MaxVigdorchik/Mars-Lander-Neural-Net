@@ -91,8 +91,8 @@
 #define FUEL_DENSITY 1.0 // (kg/l)
 // MAX_THRUST, as defined below, is 1.5 * weight of fully loaded lander at surface
 #define MAX_THRUST (1.5 * (FUEL_DENSITY*FUEL_CAPACITY+UNLOADED_LANDER_MASS) * (GRAVITY*MARS_MASS/(MARS_RADIUS*MARS_RADIUS))) // (N)
-#define ENGINE_LAG 0.0 // (s)
-#define ENGINE_DELAY 0.0 // (s)
+#define ENGINE_LAG 0.5 // (s)
+#define ENGINE_DELAY 0.5 // (s)
 #define DRAG_COEF_CHUTE 2.0
 #define DRAG_COEF_LANDER 1.0
 #define MAX_PARACHUTE_DRAG 20000.0 // (N)

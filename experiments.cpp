@@ -131,7 +131,7 @@ bool lander_evaluate(Organism *org)
 #endif
 
     //Decide if its a winner
-    if (org->fitness > 1) { 
+    if (org->fitness > 200) { 
 	org->winner=true;
 	return true;
     }
@@ -145,7 +145,7 @@ double go_lander(Network *net, int thresh)
 {
     double fitness;
     double in[12];
-    scenario = 3;
+    scenario = 5;
     reset_simulation();
     vector<NNode*>::iterator out_iter;
     while(!landed) //Essentially run update_lander_state with the neural net and no delay
@@ -179,11 +179,13 @@ double go_lander(Network *net, int thresh)
 	update_visualization(); //Important to check if landed and adjust fuel
     }
     if(!crashed)
-	fitness = fuel * FUEL_CAPACITY; //Fuel capacity just to make number a bit bigger
+	fitness = 200 + fuel * FUEL_CAPACITY + std::min(2.0, 1/velocity.abs()); 
     else
     {
 	//fitness = -velocity.abs(); //Punish landing velocity, so slower is closer to success
-	fitness = 1/velocity.abs();
+	//fitness = 1/velocity.abs();
+	fitness = std::max(0.0, 200.0 - velocity.abs());
+	
     }
     return fitness;
 }

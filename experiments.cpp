@@ -116,21 +116,23 @@ bool lander_evaluate(Organism *org)
 		      should be visited during activation */
     int thresh;  /* How many visits will be allowed before giving up 
 		    (for loop detection) */
+    double fit1 = 0; //Used to save intermediate result allowing running twice
 
     //int MAX_STEPS = 100000;
   
     net = org->net;
     numnodes = ((org->gnome)->nodes).size();
-    thresh=numnodes*2;  //Max number of visits allowed per activation, shouldnt be needed
+    thresh=numnodes*2;  //Max number of visits allowed per activation, outdated and unused.
   
     //Try to balance a pole now
-    org->fitness = go_lander(net, thresh);
+    fit1 = go_lander(net, thresh); //Run twice and take min result, avoids instability.
+    org->fitness = std::min(go_lander(net, thresh), fit1); 
 
 #ifndef NO_SCREEN_OUT
     cout<<"Org "<<(org->gnome)->genome_id<<" fitness: "<<org->fitness<<endl;
 #endif
 
-    //Decide if its a winner
+    //Decide if its a winner, make sure this coincides with changes to fitness function
     if (org->fitness > 200) { 
 	org->winner=true;
 	return true;
@@ -141,14 +143,17 @@ bool lander_evaluate(Organism *org)
 	}  
 }
 
-double go_lander(Network *net, int thresh)
+double go_lander(Network *net, int thresh) //The threshold parameter is not relevant, relic of old ver.
 {
     double fitness;
     double in[9];
-    scenario = 1;
+    double max_time = 10000;
+    bool out_of_time = false; //Time limit to prevent it getting stuck in orbit or escape.
+    scenario = 1; //Set which scenario to run here. Alternatively, add a loop to run multiple scenarios
     reset_simulation();
     vector<NNode*>::iterator out_iter;
-    bool out_of_time = false;
+    //To convert to old network trainer, uncomment the orientation inputs, change parachute status
+    //to input 11, and remove the last 3 orientation outputs.
     while(!landed && (!out_of_time)) //Essentially run update_lander
     {
 	update_closeup_coords();
@@ -163,7 +168,7 @@ double go_lander(Network *net, int thresh)
 	in[5] = velocity.y/10;
 	in[6] = velocity.z/10;
 	in[7] = fuel;
-	//in[8] = orientation.x; //orientation probably not needed for simple cases
+	//in[8] = orientation.x; //orientation is there for old version of neural net
 	//in[9] = orientation.y;
 	//in[10] = orientation.z;
 	in[8] = parachute_status;
@@ -184,17 +189,18 @@ double go_lander(Network *net, int thresh)
 	if(stabilized_attitude) attitude_stabilization();
 
 	update_visualization(); //Important to check if landed and adjust fuel
-	out_of_time = simulation_time > 10000.0; //Consider changing this time limit
+	out_of_time = simulation_time > max_time; //Consider changing this time limit
     }
-    if(out_of_time) //TODO: Seperate ground speed and climb speed
+    //Control fitness function here, most important part of the learning process
+    if(out_of_time) 
 	fitness = 0; //This needs a much better function to reward reaching the surface.
-    if(!crashed)
+    if(!crashed) //The extra velocity term here encourages landing safely with 0.5 m/s instead of 1.
 	fitness = 200 + fuel * FUEL_CAPACITY + std::min(2.0, 1/velocity.abs()); 
-    else
+    else //Consider punishing a destroyed parachute
     {
-	//fitness = -velocity.abs(); //Punish landing velocity, so slower is closer to success
-	//fitness = 1/velocity.abs();
-	fitness = std::max(0.0, 200.0 - velocity.abs());
+        //Punish landing velocity, so slower is closer to success. (-ve) values not allowed.
+	//fitness = 1/velocity.abs(); //Non-linear, really slows down training doing it this way.
+	fitness = std::max(0.0, 200.0 - velocity.abs()); //This version has a linear improvement
 	
     }
     return fitness;
@@ -236,12 +242,7 @@ int lander_epoch(Population *pop, int generation, char *filename)
 	(*curspecies)->compute_max_fitness();
     }
 
-    //Take a snapshot of the population, so that it can be
-    //visualized later on
-    //if ((generation%1)==0)
-    //  pop->snapshot();
-
-    //Only print to file every print_every generations
+    //Only print to file every print_every generations, or if its a winner that broke a record.
     if  ((win && new_record) || ((generation%(NEAT::print_every)) == 0))
 	pop->print_to_file_by_species(filename);
 

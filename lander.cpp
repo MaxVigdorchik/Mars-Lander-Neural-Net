@@ -43,7 +43,7 @@ void autopilot (void)
     else
 	throttle = 1;
 
-    ofstream fout;
+    ofstream fout; //TODO: Potentially add this to neural network version
     fout.open("results.txt", std::ios_base::app); //Works in append Mode
     fout << h << ' ' << descent_rate << endl;
 }
@@ -98,34 +98,59 @@ void numerical_dynamics (void)
     
     // Here we can apply 3-axis stabilization to ensure the base is always pointing downwards
     if (stabilized_attitude) attitude_stabilization();
-#endif   
+#endif
 }
 
 void neural_autopilot(void)
 {
     Network *net = autopilot_net;
     vector<NNode*>::iterator out_iter;
-    
-    double in[12];
-    in[0] = 1.0; //Constant bias input
-    in[1] = position.x / 100000;
-    in[2] = position.y / 100000;
-    in[3] = position.z / 100000;
-    in[4] = velocity.x / 10;
-    in[5] = velocity.y / 10;
-    in[6] = velocity.z / 10;
-    in[7] = fuel;
-    in[8] = orientation.x; //orientation probably not needed for simple cases
-    in[9] = orientation.y;
-    in[10] = orientation.z;
-    in[11] = parachute_status;
-
+    double *in = NULL; //Dynamically allocate array depending on old_net
+    if(old_net) //Case for using an _old file with old I/O
+    {
+	in = new double[12];
+	in[0] = 1.0; //Constant bias input
+	in[1] = position.x / 100000;
+	in[2] = position.y / 100000;
+	in[3] = position.z / 100000;
+	in[4] = velocity.x / 10;
+	in[5] = velocity.y / 10;
+	in[6] = velocity.z / 10;
+	in[7] = fuel;
+	in[8] = orientation.x; //orientation probably not needed for simple cases
+	in[9] = orientation.y;
+	in[10] = orientation.z;
+	in[11] = parachute_status;
+    } else
+    {
+	in = new double[9];
+	in[0] = 1.0; //Constant bias input
+	in[1] = position.x/100000;
+	in[2] = position.y/100000;
+	in[3] = position.z/100000;
+	in[4] = velocity.x/10;
+	in[5] = velocity.y/10;
+	in[6] = velocity.z/10;
+	in[7] = fuel;
+	in[8] = parachute_status;
+    }
     net->load_sensors(in);
     if(!(net->activate())) return; 
     out_iter = net->outputs.begin(); 
     throttle = (*out_iter)->activation;
     ++out_iter;
     parachute_status = static_cast<parachute_status_t>((*out_iter)->activation > 0.9);
+    if(!old_net) //new network has 3 more outputs to deal with
+    {
+	++out_iter;
+	orientation.x = (*out_iter)->activation * 360; //allows angles between 0 and 360
+	++out_iter;
+	orientation.y = (*out_iter)->activation * 360; //Make sure attitude stabilization is off
+	++out_iter;
+	orientation.z = (*out_iter)->activation * 360;
+    }
+
+    delete in; //Free dynamically allocated memory
 }
 
 void initialize_simulation (void)
@@ -171,7 +196,7 @@ void initialize_simulation (void)
 	orientation = vector3d(0.0, 0.0, 90.0);
 	delta_t = 0.1;
 	parachute_status = NOT_DEPLOYED;
-	stabilized_attitude = false;
+	stabilized_attitude = old_net; //old network was trained with this on
 	autopilot_enabled = true;
 	break;
 
@@ -215,7 +240,7 @@ void initialize_simulation (void)
 	orientation = vector3d(0.0, 0.0, 90.0);
 	delta_t = 0.1;
 	parachute_status = NOT_DEPLOYED;
-	stabilized_attitude = true;
+	stabilized_attitude = old_net;
 	autopilot_enabled = true;
 	break;
 

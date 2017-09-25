@@ -62,7 +62,7 @@ int main(int argc, char *argv[]) {
 
   cout<<"loaded"<<endl;
 
-  //Genome *test = new_Genome_auto(12,2,0,0,"teststartgenes");
+  //Genome *test = new_Genome_auto(9,5,0,1,"teststartgenes");
   //test->print_to_filename("teststartgene");
 
   int generations;

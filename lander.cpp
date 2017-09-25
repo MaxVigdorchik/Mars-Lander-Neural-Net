@@ -98,15 +98,15 @@ void numerical_dynamics (void)
     
     // Here we can apply 3-axis stabilization to ensure the base is always pointing downwards
     if (stabilized_attitude) attitude_stabilization();
-#endif
+#endif   
 }
 
 void neural_autopilot(void)
 {
     Network *net = autopilot_net;
-    double in[12];
     vector<NNode*>::iterator out_iter;
     
+    double in[12];
     in[0] = 1.0; //Constant bias input
     in[1] = position.x / 100000;
     in[2] = position.y / 100000;
@@ -171,7 +171,7 @@ void initialize_simulation (void)
 	orientation = vector3d(0.0, 0.0, 90.0);
 	delta_t = 0.1;
 	parachute_status = NOT_DEPLOYED;
-	stabilized_attitude = true;
+	stabilized_attitude = false;
 	autopilot_enabled = true;
 	break;
 

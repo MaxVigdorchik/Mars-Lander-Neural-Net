@@ -91,8 +91,8 @@
 #define FUEL_DENSITY 1.0 // (kg/l)
 // MAX_THRUST, as defined below, is 1.5 * weight of fully loaded lander at surface
 #define MAX_THRUST (1.5 * (FUEL_DENSITY*FUEL_CAPACITY+UNLOADED_LANDER_MASS) * (GRAVITY*MARS_MASS/(MARS_RADIUS*MARS_RADIUS))) // (N)
-#define ENGINE_LAG 0.5 // (s)
-#define ENGINE_DELAY 0.5 // (s)
+#define ENGINE_LAG 0.0 // (s) 0.5s for the neural net AI that was pre trained
+#define ENGINE_DELAY 0.0 // (s)
 #define DRAG_COEF_CHUTE 2.0
 #define DRAG_COEF_LANDER 1.0
 #define MAX_PARACHUTE_DRAG 20000.0 // (N)
@@ -193,7 +193,7 @@ unsigned long long time_program_started;
 // any errors in the velocity update in numerical_dynamics
 vector3d position, orientation, velocity, velocity_from_positions, last_position;
 double climb_speed, ground_speed, altitude, throttle, fuel;
-bool stabilized_attitude, autopilot_enabled, parachute_lost;
+bool stabilized_attitude, autopilot_enabled, parachute_lost, old_net;
 parachute_status_t parachute_status;
 int stabilized_attitude_angle;
 
@@ -214,7 +214,7 @@ Network *autopilot_net;
 
 #else // extern declarations of those global variables used in lander.cpp
 
-extern bool stabilized_attitude, autopilot_enabled, landed, crashed, neural;
+extern bool stabilized_attitude, autopilot_enabled, landed, crashed, neural, old_net;
 extern double delta_t, simulation_time, throttle, fuel;
 extern unsigned short scenario;
 extern string scenario_description[];

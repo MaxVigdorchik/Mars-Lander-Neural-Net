@@ -35,10 +35,10 @@ lander.o: lander.cpp lander.h
 	$(CC) $(CFLAGS) -c lander.cpp -o lander.o
 
 #visual.o: visual.cpp visual.h
-	$(CC) $(CFLAGS) -c visual.cpp -o visual.o
+#	$(CC) $(CFLAGS) -c visual.cpp -o visual.o
 
 #visualmain.o: visualmain.cpp
-	$(CC) $(CFLAGS) -c visualmain.cpp -o visualmain.o
+#	$(CC) $(CFLAGS) -c visualmain.cpp -o visualmain.o
 
 neat.o: neat.cpp neat.h
 	  $(CC) $(CFLAGS) -c neat.cpp -o neat.o

@@ -144,11 +144,12 @@ bool lander_evaluate(Organism *org)
 double go_lander(Network *net, int thresh)
 {
     double fitness;
-    double in[12];
-    scenario = 5;
+    double in[9];
+    scenario = 1;
     reset_simulation();
     vector<NNode*>::iterator out_iter;
-    while(!landed) //Essentially run update_lander_state with the neural net and no delay
+    bool out_of_time = false;
+    while(!landed && (!out_of_time)) //Essentially run update_lander
     {
 	update_closeup_coords();
 	last_position = position;
@@ -162,10 +163,10 @@ double go_lander(Network *net, int thresh)
 	in[5] = velocity.y/10;
 	in[6] = velocity.z/10;
 	in[7] = fuel;
-	in[8] = orientation.x; //orientation probably not needed for simple cases
-	in[9] = orientation.y;
-	in[10] = orientation.z;
-	in[11] = parachute_status;
+	//in[8] = orientation.x; //orientation probably not needed for simple cases
+	//in[9] = orientation.y;
+	//in[10] = orientation.z;
+	in[8] = parachute_status;
 
 	net->load_sensors(in);
 	if(!(net->activate())) return 0; //fitness of 0 if net fails to run
@@ -173,11 +174,20 @@ double go_lander(Network *net, int thresh)
 	throttle = (*out_iter)->activation;
 	++out_iter;
 	parachute_status = static_cast<parachute_status_t>((*out_iter)->activation > 0.9);
+	++out_iter;
+	orientation.x = (*out_iter)->activation * 360; //allows angles between 0 and 360
+	++out_iter;
+	orientation.y = (*out_iter)->activation * 360;
+	++out_iter;
+	orientation.z = (*out_iter)->activation * 360;
 
 	if(stabilized_attitude) attitude_stabilization();
 
 	update_visualization(); //Important to check if landed and adjust fuel
+	out_of_time = simulation_time > 10000.0; //Consider changing this time limit
     }
+    if(out_of_time) //TODO: Seperate ground speed and climb speed
+	fitness = 0; //This needs a much better function to reward reaching the surface.
     if(!crashed)
 	fitness = 200 + fuel * FUEL_CAPACITY + std::min(2.0, 1/velocity.abs()); 
     else

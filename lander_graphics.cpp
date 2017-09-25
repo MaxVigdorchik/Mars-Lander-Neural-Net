@@ -2084,7 +2084,11 @@ int main (int argc, char* argv[])
 	
 	//autopilot_net = autopilot_genome->genesis(autopilot_genome->genome_id);
 	neural = true;
-    } else neural = false;
+
+	std::string filename(argv[1]); //Check if its a net from old input output setup
+	old_net = (filename.length() >= 4) && (0 == filename.compare(filename.length()-4,4,"_old"));
+    } else
+	neural = false;
     int i;
     // Main GLUT window
     

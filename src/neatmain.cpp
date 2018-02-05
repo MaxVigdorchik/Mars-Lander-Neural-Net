@@ -35,20 +35,12 @@
 #include "experiments.h"
 using namespace std;
 
-int main(int argc, char *argv[]) {
-
-  //list<NNode*> nodelist;
-
+int main(int argc, char *argv[])
+{
   int pause;
 
   NEAT::Population *p;
 
-  /* GTKMM */
-//    myapp=new Gtk::Main(argc, argv);
-
-//    testdoub=&val;
-
-  //***********RANDOM SETUP***************//
   /* Seed the random-number generator with current time so that
       the numbers will be different every time we run.    */
   srand( (unsigned)time( NULL ) );
@@ -56,13 +48,14 @@ int main(int argc, char *argv[]) {
       cerr << "A NEAT parameters file (.ne file) and a starting genes file is required!" << endl;
     return -1;
   }
-  bool checkpoint = argc == 4;
+  bool checkpoint = argc == 4; //Having anything as a 4th parameter treats the startgene as a checkpoint rather than new start.
   //Load in the params
   NEAT::load_neat_params(argv[1],true);
 
   cout<<"loaded"<<endl;
 
-  //Genome *test = new_Genome_auto(9,5,0,1,"teststartgenes");
+  //Uncomment the following lines to generate a new startgene, useful if network parameters change
+  //Genome *test = new_Genome_auto(9,5,0,1,"teststartgenes"); 
   //test->print_to_filename("teststartgene");
 
   int generations;

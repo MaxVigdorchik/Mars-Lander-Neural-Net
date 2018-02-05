@@ -39,8 +39,9 @@ Population *lander_test(int gens, char* startgene, bool checkpoint)
 
 	cout<<"Spawning Population off Genome"<<endl;
 
-	if(checkpoint)
-	    pop = new Population(start_genome, NEAT::pop_size, 0.5);
+	//checkpoint determines if the start_genome is a simple baseline or comes from a partially trained genome
+	if(checkpoint) 
+	    pop = new Population(start_genome, NEAT::pop_size, 0.5); //Extra parameter means it spawns a population off checkpoint genome
 	else
 	    pop = new Population(start_genome, NEAT::pop_size);
 
@@ -61,7 +62,7 @@ Population *lander_test(int gens, char* startgene, bool checkpoint)
 	    char temp[50];
 	    sprintf(temp, "gen_%d", gen);
 
-	    status = lander_epoch(pop,gen,temp);
+	    status = lander_epoch(pop,gen,temp); //This is main routine to generate new generations
 
 	    if(status)
 	    {
@@ -93,6 +94,7 @@ Population *lander_test(int gens, char* startgene, bool checkpoint)
     return pop;
 }
 
+//This is the function to call
 bool lander_evaluate(Organism *org)
 {
     Network *net;
@@ -101,7 +103,7 @@ bool lander_evaluate(Organism *org)
 		      should be visited during activation */
     int thresh;  /* How many visits will be allowed before giving up 
 		    (for loop detection) */
-    double fit1 = 0; //Used to save intermediate result allowing running twice
+    double fit1 = 0; //Used to save intermediate result allowing running twice, improving stability
 
     //int MAX_STEPS = 100000;
   
@@ -117,7 +119,7 @@ bool lander_evaluate(Organism *org)
 #endif
 
     //Decide if its a winner, make sure this coincides with changes to fitness function
-    if (org->fitness > 200) { 
+    if (org->fitness > 200) { //TODO: Make this 200 a changeable parameter since it is an important part of fitness function
 	org->winner=true;
 	return true;
     }
@@ -127,12 +129,13 @@ bool lander_evaluate(Organism *org)
 	}  
 }
 
+//This function actually runs the simulation and determines the fitness of the given network. Helper function to lander_evaluate.
 double go_lander(Network *net, int thresh) //The threshold parameter is not relevant, relic of old ver.
 {
     double fitness;
     double in[9];
     double max_time = 10000;
-    bool out_of_time = false; //Time limit to prevent it getting stuck in orbit or escape.
+    bool out_of_time = false; //Time limit to prevent it getting stuck in orbit or escape. 
     scenario = 1; //Set which scenario to run here. Alternatively, add a loop to run multiple scenarios
     reset_simulation();
     vector<NNode*>::iterator out_iter;
@@ -172,15 +175,15 @@ double go_lander(Network *net, int thresh) //The threshold parameter is not rele
 
 	if(stabilized_attitude) attitude_stabilization();
 
-	update_visualization(); //Important to check if landed and adjust fuel
+	update_visualization(); //Important to check if landed and adjust fuel and other parameters
 	out_of_time = simulation_time > max_time; //Consider changing this time limit
     }
     //Control fitness function here, most important part of the learning process
     if(out_of_time) 
-	fitness = 0; //This needs a much better function to reward reaching the surface.
+	fitness = 0; //This needs a much better function to reward reaching the surface. Currently if it doesnt crash it doesnt know how well it did
     if(!crashed) //The extra velocity term here encourages landing safely with 0.5 m/s instead of 1.
 	fitness = 200 + fuel * FUEL_CAPACITY + std::min(2.0, 1/velocity.abs()); 
-    else //Consider punishing a destroyed parachute
+    else //TODO: Consider punishing a destroyed parachute
     {
         //Punish landing velocity, so slower is closer to success. (-ve) values not allowed.
 	//fitness = 1/velocity.abs(); //Non-linear, really slows down training doing it this way.
@@ -190,6 +193,7 @@ double go_lander(Network *net, int thresh) //The threshold parameter is not rele
     return fitness;
 }
 
+//Function for creating the next generation based on the current one
 int lander_epoch(Population *pop, int generation, char *filename)
 {
     vector<Organism*>::iterator curorg;

@@ -1,9 +1,9 @@
 CC = g++ -O3 
-CCSW = -Wno-deprecated-declarations -DLANDER_MAIN
+CCSW = -DLANDER_MAIN #Used to distinguish bettwen neatmain and main in lander_graphics
 PLATFORM = `uname`
 #LIBS = -L/usr/lib /usr/lib/libqthreads.so.0 -lguile -ldl -lreadline -ltermcap -lm
 
-INCLUDES = -I/usr/include/g++-2 -I/usr/lib/sigc++/include
+INCLUDES = -I/usr/include/g++-2 -I/usr/lib/sigc++/include -I./lib -I./src
 
 CFLAGS = -g -fopenmp -Wall -Wno-return-type $(INCLUDES) -DSWIG_GLOBAL -Wno-deprecated-declarations 
 #CFLAGS = -g -Wall -Werror
@@ -11,76 +11,67 @@ CFLAGS = -g -fopenmp -Wall -Wno-return-type $(INCLUDES) -DSWIG_GLOBAL -Wno-depre
 
 all: neat lander
 
-neat: neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander.o lander_graphics.o experiments.o neatmain.o #neatswig_wrap.o visual.o 
-	$(CC) $(CFLAGS) $(LIBS) neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander.o lander_graphics.o experiments.o neatmain.o -o neat  
-#	$(CC) $(CFLAGS) $(LIBS) networks.o genetics.o visual.o experiments.o neatswig_wrap.o neatmain.o -o neat `gtkmm-config --cflags --libs`
+neat: neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander.o lander_graphics.o experiments.o neatmain.o
+	$(CC) $(CFLAGS) $(LIBS) build/neat.o build/network.o build/nnode.o build/link.o build/trait.o build/gene.o build/genome.o build/innovation.o build/organism.o build/species.o build/population.o build/lander.o build/lander_graphics.o build/experiments.o build/neatmain.o -o neat  
 
-lander: neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander_main.o lander_graphics_main.o experiments.o #neatswig_wrap.o visual.o 
-	$(CC) $(CFLAGS) $(LIBS) $(CCSW) neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander_main.o lander_graphics_main.o experiments.o -o lander  -lGL -lGLU -lglut
+lander: neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander_main.o lander_graphics_main.o experiments.o
+	$(CC) $(CFLAGS) $(LIBS) $(CCSW) build/neat.o build/network.o build/nnode.o build/link.o build/trait.o build/gene.o build/genome.o build/innovation.o build/organism.o build/species.o build/population.o build/lander_main.o build/lander_graphics_main.o build/experiments.o -o lander  -lGL -lGLU -lglut
 
-#graph: neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander.o lander_graphics.o experiments.o visual.o visualmain.o 
-#	$(CC) $(CFLAGS) $(LIBS) neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o lander.o lander_graphics.o experiments.o visual.o visualmain.o -o graph 
 ########################
 
-lander_graphics_main.o: lander_graphics.cpp lander.h
-	$(CC) $(CFLAGS) $(CCSW) -c lander_graphics.cpp -o lander_graphics_main.o
+lander_graphics_main.o: src/lander_graphics.cpp src/lander.h
+	$(CC) $(CFLAGS) $(CCSW) -c src/lander_graphics.cpp -o build/lander_graphics_main.o
 
-lander_main.o: lander.cpp lander.h
-	$(CC) $(CFLAGS) $(CCSW) -c lander.cpp -o lander_main.o
+lander_main.o: src/lander.cpp src/lander.h
+	$(CC) $(CFLAGS) $(CCSW) -c src/lander.cpp -o build/lander_main.o
 
-lander_graphics.o: lander_graphics.cpp lander.h
-	$(CC) $(CFLAGS) -c lander_graphics.cpp -o lander_graphics.o
+lander_graphics.o: src/lander_graphics.cpp src/lander.h
+	$(CC) $(CFLAGS) -c src/lander_graphics.cpp -o build/lander_graphics.o
 
-lander.o: lander.cpp lander.h
-	$(CC) $(CFLAGS) -c lander.cpp -o lander.o
+lander.o: src/lander.cpp src/lander.h
+	$(CC) $(CFLAGS) -c src/lander.cpp -o build/lander.o
 
-#visual.o: visual.cpp visual.h
-#	$(CC) $(CFLAGS) -c visual.cpp -o visual.o
+neat.o: lib/neat.cpp lib/neat.h
+	  $(CC) $(CFLAGS) -c lib/neat.cpp -o build/neat.o
 
-#visualmain.o: visualmain.cpp
-#	$(CC) $(CFLAGS) -c visualmain.cpp -o visualmain.o
+network.o: lib/network.cpp lib/network.h lib/neat.h neat.o  
+	$(CC) $(CFLAGS)  -c lib/network.cpp -o build/network.o
 
-neat.o: neat.cpp neat.h
-	  $(CC) $(CFLAGS) -c neat.cpp -o neat.o
+nnode.o: lib/nnode.cpp lib/nnode.h    
+	$(CC) $(CFLAGS) -c lib/nnode.cpp -o build/nnode.o
 
-network.o: network.cpp network.h neat.h neat.o  
-	$(CC) $(CFLAGS)  -c network.cpp -o network.o
+link.o: lib/link.cpp lib/link.h
+	  $(CC) $(CFLAGS) -c lib/link.cpp -o build/link.o
 
-nnode.o: nnode.cpp nnode.h    
-	$(CC) $(CFLAGS) -c nnode.cpp -o nnode.o
+trait.o: lib/trait.cpp lib/trait.h
+	  $(CC) $(CFLAGS) -c lib/trait.cpp -o build/trait.o
 
-link.o: link.cpp link.h
-	  $(CC) $(CFLAGS) -c link.cpp -o link.o
+gene.o: lib/gene.cpp lib/gene.h
+	  $(CC) $(CFLAGS) -c lib/gene.cpp -o build/gene.o
 
-trait.o: trait.cpp trait.h
-	  $(CC) $(CFLAGS) -c trait.cpp -o trait.o
+genome.o: lib/genome.cpp lib/genome.h
+	  $(CC) $(CFLAGS) -c lib/genome.cpp -o build/genome.o
 
-gene.o: gene.cpp gene.h
-	  $(CC) $(CFLAGS) -c gene.cpp -o gene.o
+innovation.o: lib/innovation.cpp lib/innovation.h
+	  $(CC) $(CFLAGS) -c lib/innovation.cpp -o build/innovation.o
 
-genome.o: genome.cpp genome.h
-	  $(CC) $(CFLAGS) -c genome.cpp -o genome.o
+organism.o: lib/organism.cpp lib/organism.h    
+	$(CC) $(CFLAGS) -c lib/organism.cpp -o build/organism.o
 
-innovation.o: innovation.cpp innovation.h
-	  $(CC) $(CFLAGS) -c innovation.cpp -o innovation.o
+species.o: lib/species.cpp lib/species.h lib/organism.h
+	  $(CC) $(CFLAGS) -c lib/species.cpp -o build/species.o
 
-organism.o: organism.cpp organism.h    
-	$(CC) $(CFLAGS) -c organism.cpp -o organism.o
+population.o: lib/population.cpp lib/population.h lib/organism.h
+	  $(CC) $(CFLAGS) -c lib/population.cpp -o build/population.o
 
-species.o: species.cpp species.h organism.h
-	  $(CC) $(CFLAGS) -c species.cpp -o species.o
+experiments.o: src/experiments.cpp src/experiments.h lib/network.h lib/species.h
+	$(CC) $(CFLAGS) -c src/experiments.cpp -o build/experiments.o
 
-population.o: population.cpp population.h organism.h
-	  $(CC) $(CFLAGS) -c population.cpp -o population.o
-
-experiments.o: experiments.cpp experiments.h network.h species.h
-	$(CC) $(CFLAGS) -c experiments.cpp -o experiments.o
-
-neatmain.o: neatmain.cpp neatmain.h neat.h population.h
-	$(CC) $(CFLAGS) -c neatmain.cpp -o neatmain.o
+neatmain.o: src/neatmain.cpp src/neatmain.h lib/neat.h lib/population.h
+	$(CC) $(CFLAGS) -c src/neatmain.cpp -o build/neatmain.o
 
 
 ########################
 
 clean:
-	rm -f neat.o network.o nnode.o link.o trait.o gene.o genome.o innovation.o organism.o species.o population.o experiments.o neatmain.o neat lander.o lander_graphics.o lander_graphics_main.o lander_main.o lander
+	rm -f build/* lander neat
